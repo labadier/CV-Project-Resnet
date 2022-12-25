@@ -9,8 +9,9 @@ class params:
   
     output = 'out'
     ep = 120
-    bs = 128
-    lr = 1e-3
+    bs = 400
+    lr = 0.01
+
 
 def load_dataset(batch_size):
 
@@ -21,11 +22,10 @@ def load_dataset(batch_size):
       )
 
   transform_train = transforms.Compose([
-        transforms.RandomCrop(32, padding=4),
+        transforms.RandomCrop(32, padding=4, padding_mode='reflect'),
         transforms.RandomHorizontalFlip(),
-        transforms.RandomRotation(15),
         transforms.ToTensor(),
-        transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
+        transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010), inplace=True)
       ])
 
   train_loader = DataLoader(datasets.CIFAR10(root='./data', train=True, download=True, transform=transform_train),
