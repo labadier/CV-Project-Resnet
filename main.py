@@ -1,6 +1,6 @@
 import argparse, sys, os, numpy as np, torch, random
 from pathlib import Path
-from utils import load_dataset, plot_training, params
+from utils import load_dataset, plot_training, params, plot_lr
 
 from model import train_model
 
@@ -32,5 +32,6 @@ if __name__ == '__main__':
   Path(output).mkdir(parents=True, exist_ok=True)
   trainloader, devloader = load_dataset(bs)
 
-  history = train_model(trainloader, devloader, epoches = ep, batch_size = bs, lr = lr, output=os.path.join(output, 'best_model'))
-  plot_training(history, output, 'loss')
+  history, lr_history = train_model(trainloader, devloader, epoches = ep, batch_size = bs, lr = lr, output=os.path.join(output, 'best_model'))
+  plot_training(history, output)
+  plot_lr(lr_history, output)

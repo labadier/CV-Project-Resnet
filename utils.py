@@ -40,16 +40,26 @@ def load_dataset(batch_size):
 
 
 
-def plot_training(history, model, output, measure='loss'):
-    
-    plt.plot(history[measure])
-    plt.plot(history['dev_' + measure])
-    plt.legend(['train', 'dev'], loc='upper left')
-    plt.ylabel(measure)
-    plt.xlabel('Epoch')
-    if measure == 'loss':
-        x = np.argmin(history['dev_loss'])
-    else: x = np.argmax(history['dev_f1'])
+def plot_training(history, output, measure='error'):
+  
+  plt.plot(history[measure])
+  plt.plot(history['dev_' + measure])
+  plt.legend(['train', 'dev'], loc='upper left')
+  plt.ylabel(measure)
+  plt.xlabel('Epoch')
+  if measure == 'loss':
+    x = np.argmin(history['dev_loss'])
+  else: x = np.argmax(history['dev_f1'])
 
-    plt.plot(x,history['dev_' + measure][x], marker="o", color="red")
-    plt.savefig(os.path.join(output, f'train_history_{model}.png'))
+  plt.plot(x,history['dev_' + measure][x], marker="o", color="red")
+  plt.savefig(os.path.join(output, f'train_history.png'))
+  plt.clf()
+
+
+def plot_lr(lr_history, output):
+  
+  plt.plot(lr_history)
+  plt.legend(['lr'], loc='upper left')
+  plt.ylabel('lr')
+  plt.xlabel('Epoch')
+  plt.savefig(os.path.join(output, f'lr_history.png'))

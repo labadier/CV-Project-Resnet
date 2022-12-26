@@ -10,6 +10,8 @@ from collections import OrderedDict
 import json
 from resnet50 import ResNet50
 
+
+
 class ResBlock(torch.nn.Module):
 
     def __init__(self, in_channels, out_channels, downsample):
@@ -103,7 +105,7 @@ class ResNet(torch.nn.Module):
     # scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(opt, factor = 0.1, patience=5)
 
     opt = torch.optim.Adam(self.parameters(), lr, weight_decay=1e-4)
-    
+    print(steps_per_epoch)
     scheduler = torch.optim.lr_scheduler.OneCycleLR(opt, lr, epochs=epoches, 
                                               steps_per_epoch=steps_per_epoch)
   
@@ -112,8 +114,13 @@ class ResNet(torch.nn.Module):
   def computeLoss(self, outputs, data):
     return self.loss_criterion(outputs, data['labels'].to(self.device) )
 
+def get_lr(optimizer):
+  for param_group in optimizer.param_groups:
+    return param_group['lr']
+
 def train_model( trainloader, devloader, epoches, batch_size, lr, output):
 
+  SS = []
   eerror, ef1, edev_error, edev_f1, eloss, dev_loss= [], [], [], [], [], []
   best_f1 = None
 
@@ -144,6 +151,7 @@ def train_model( trainloader, devloader, epoches, batch_size, lr, output):
       optimizer.zero_grad()
 
       scheduler.step()
+      SS += [get_lr(optimizer)]
       # print statistics
       with torch.no_grad():
         
@@ -157,7 +165,6 @@ def train_model( trainloader, devloader, epoches, batch_size, lr, output):
 
       iter.set_postfix_str(f'loss:{loss:.3f} f1:{f1:.3f}, error:{error:.3f}') 
 
-      scheduler.step()
       if j == len(trainloader) - 1:
       
         model.eval()
@@ -194,7 +201,6 @@ def train_model( trainloader, devloader, epoches, batch_size, lr, output):
           best_f1 = edev_error
         iter.set_postfix_str(f'loss:{eloss[-1]:.3f} f1:{ef1[-1]:.3f} error:{eerror[-1]:.3f} dev_loss: {loss:.3f} f1_dev:{f1:.3f} dev_error:{error:.3f}') 
         
-
-  return {'loss': eerror, 'f1': ef1, 'dev_loss': edev_error, 'dev_f1': edev_f1}
+  return {'error': eerror, 'f1': ef1, 'dev_error': edev_error, 'dev_f1': edev_f1}, SS
 
     
